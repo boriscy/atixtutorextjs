@@ -24,9 +24,57 @@ Ext.onReady(function() {
         draggable: false
     });
     
+    var nodoSeleccionado = root;
+    
+    /**
+    * Función que permite crear nodos
+    */
+    function crearNodo() {
+
+        var w = new Ext.Window({
+            title: 'Crear Nodo',
+            items: [{
+                xtype: 'form', id: 'formaCrearNodo', labelWidth: 40, url: 'arbol.php',
+                items:[{
+                    xtype: 'hidden', name: 'accion', id: 'accion', value: 'crear'
+                },{
+                    xtype: 'hidden', name: 'padre', id: 'padre', value: nodoSeleccionado.id
+                },{
+                    xtype: 'textfield', fieldLabel: 'Texto', name: 'texto', id: 'texto'
+                }]
+            }],
+            buttons: [{
+                text: 'Guardar', handler: function() {
+                    console.log(Ext.getCmp('formaCrearNodo').getForm());////
+                    Ext.getCmp('formaCrearNodo').getForm().submit({
+                        success: function() {
+                            console.log(arguments);
+                        },
+                        failure: function() {
+                            console.log(arguments);
+                        }
+                    });
+                }
+            }]
+        });
+        w.show();
+        /*
+        nodoSeleccionado.add({
+            text
+        });
+        */
+    }
+
+    /**
+    * Función que permite borrar nodos
+    */    
+    function borrarNodo() {
+        console.log(nodoSeleccionado);
+    }
+    
     //Crear Arbol
     var tree = new Ext.tree.TreePanel({
-        id: 'treePanel',
+        id: 'arbol',
         loader: new Ext.tree.TreeLoader({
             url:'arbol.php',
             requestMethod:'GET',
@@ -39,15 +87,16 @@ Ext.onReady(function() {
         renderTo: 'arbol', //Id del tag en el cual se renderiza
         root: root,
         rootVisible: false, //No queremos ver el nodo raiz
-        /*tbar : [{
-            text: "Crear", handler: createNode}, 
-            {text: "Borrar", handler: deleteNode
-        }],*/
+        tbar : [{
+            text: "Crear", handler: crearNodo
+        }, {
+            text: "Borrar", handler: borrarNodo
+        }],
         //Definición de eventos
         listeners: {
             //Se define el nodo actual al que se haya seleccionado para poder crear
             //hijos a partir del nodo seleccionado
-            click: {fn: function(node) { currentNode = node} }
+            click: {fn: function(nodo) { nodoSeleccionado = nodo} }
             //beforeappend: {fn: function() {currentNode.expand() } }
         }
       });
@@ -91,6 +140,8 @@ Ext.onReady(function() {
             }
         });
     });
+    
+    // Creación y edición de nodos
 });
 </script>
 <!-- Fin -->
