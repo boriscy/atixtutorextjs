@@ -13,7 +13,7 @@ if (!$link) {
    die('Not connected : ' . mysql_error());
 }
 // make foo the current db
-$db_selected = mysql_select_db('test', $link);
+$db_selected = mysql_select_db('demo', $link);
 if (!$db_selected) {
    die ('Can\'t use test: ' . mysql_error());
 }

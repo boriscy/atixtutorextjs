@@ -6,7 +6,7 @@ include_once('db.php');
 * Clase Arbol, permite la adición, reemparentamiento y borrado de nodos de nodos
 * de un árbol
 */
-class Arbol{
+class Arbol {
 	
 	var $datos, $bd;
 	
@@ -20,32 +20,53 @@ class Arbol{
 	/**
 	* Función que permite la ceración de nuevos nodos
 	* @param array() $params Parametros
-	* @param string $params['texto'] Texto del nuevo nodo
+	* @param string $params['nombre'] Texto del nuevo nodo
 	* @param integer $param['padre'] ID del nodo padre
 	*/
 	function crear($params) {
-		$texto = mysql_real_escape_string($params['texto']);
+		$texto = mysql_real_escape_string($params['nombre']);
 		$padre = intval($params['padre']);
 		
         $query = "INSERT INTO arbol (nombre, parent_id) VALUES ('$texto', $padre) ";
 		if (mysql_query($query, $this->bd)) {
-			$this->presentar(array('success' => true));
+            $res = mysql_query("SELECT MAX( id ) AS id FROM arbol");
+            $fila = mysql_fetch_assoc($res);
+			$this->presentar(array('success' => true, 'id' => $fila['id']));
 		}else{
 			$this->presentar(array('success' => false));
 		}
 	}
-	
+
+    /**
+     * Función que permite realizar la edición de un nodo
+     * @param array() $params Parametros
+     * @param int $params['id'] ID del nodo a editar
+     * @param string $params['nombre'] Nuevo nombre del nodo
+     */
+	function editar($params) {
+        $id = intval($params['id']);
+        $nombre = mysql_real_escape_string($params['nombre']);
+
+        $query = "UPDATE arbol SET nombre='$nombre' WHERE id=$id";
+        if (mysql_query($query, $this->bd)) {
+			$this->presentar(array('success' => true));
+		}else{
+			$this->presentar(array('success' => false));
+		}
+    }
+
 	/**
 	* Funcion que permite borrar un nodo seleccionado
 	* @param array $params Parametros 
 	* @param integer $params['nodo'] ID del nodo que se desea borrar
 	*/
 	function borrar($params) {
-		$nodo = intval($params['nodo']);
-		$res = mysql_query("SELECT * FROM arbol WHERE parent_id=".$nodo, $this->bd);
-		if(!$res) {
-		    $query = "DELETE FROM arbol WHERE id=".$nodo;
-		    mysql_query($query, $this->bd);
+		$id = intval($params['id']);
+		$res = mysql_query("SELECT COUNT(*) AS total FROM arbol WHERE parent_id=$id", $this->bd);
+        $fila = mysql_fetch_assoc($res);
+		if($fila['total'] <= 0) {
+		    $query = "DELETE FROM arbol WHERE id=$id";
+		    mysql_query($query, $this->bd) or die("Error en la base de datos");
 		    $this->presentar(array('success' => true) );
 		}else{
 		    $this->presentar(array('success' => false, 'error' => 'Debe seleccionar un nodo sin hijos') );
@@ -99,6 +120,7 @@ class Arbol{
 	}
 }
 
+// Recibe los parametros POST o GET y los envia a la clase Arbol
 if(isset($_REQUEST)) {
 	$arbol = new Arbol($_REQUEST, $link);
 }
