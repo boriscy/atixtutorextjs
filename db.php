@@ -6,6 +6,8 @@ CREATE TABLE IF NOT EXISTS `arbol` (
   `nombre` varchar(50) character set utf8 collate utf8_unicode_ci NOT NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM;
+
+INSERT INTO arbol (nombre) VALUES ('Frameworks');
 */
 
 $link = mysql_connect('localhost', 'demo', 'demo');
